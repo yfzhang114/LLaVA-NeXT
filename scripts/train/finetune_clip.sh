@@ -10,7 +10,7 @@ VISION_MODEL_VERSION="openai/clip-vit-large-patch14-336"
 VISION_MODEL_VERSION_CLEAN="${VISION_MODEL_VERSION//\//_}"
 
 ############### Pretrain ################
-# nohup bash scripts/train/finetune_clip.sh >> finetune_clip_qwen2_05b_clip_mlp2_bsz256.log 2>&1 &
+# nohup bash scripts/train/finetune_clip.sh >> finetune_clip_qwen2_05b_clip_mlp2_bsz512_lr1e-3.log 2>&1 &
 
 # Set environment variables
 NUM_GPUS=8  # Set the number of GPUs based on your hardware configuration
@@ -30,7 +30,7 @@ PROMPT_VERSION="qwen_1_5"
 
 BASE_RUN_NAME="llavanext-${VISION_MODEL_VERSION_CLEAN}-${LLM_VERSION_CLEAN}-mlp2x_gelu-pretrain_blip558k_plain"
 echo "BASE_RUN_NAME: ${BASE_RUN_NAME}"
-MID_RUN_NAME="llavanext-${VISION_MODEL_VERSION_CLEAN}-${LLM_VERSION_CLEAN}-mlp2x_gelu-llavaonevision-bsz512"
+MID_RUN_NAME="llavanext-${VISION_MODEL_VERSION_CLEAN}-${LLM_VERSION_CLEAN}-mlp2x_gelu-llavaonevision-lr1e-3"
 
 ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${NUM_GPUS}" --nnodes="${NNODES}" --node_rank="${RANK}" --master_addr="${ADDR}" --master_port="${PORT}" \
     llava/train/train_mem.py \
@@ -39,8 +39,8 @@ ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${NUM_GPUS}" --nnodes="${NN
     --version ${PROMPT_VERSION} \
     --data_path /home/yueke/data/llava_one_vision.json \
     --image_folder /dev/shm/data/LLaVA-OneVision-Processed/images \
-    --pretrain_mm_mlp_adapter="/home/yueke/model/projectors/${BASE_RUN_NAME}/mm_projector.bin" \
-    --mm_tunable_parts="mm_mlp_adapter,mm_language_model" \
+    --pretrain_mm_mlp_adapter="/home/yueke/model/projectors/qwen_05_mm_projector.bin" \
+    --mm_tunable_parts="mm_vision_tower,mm_mlp_adapter,mm_language_model" \
     --vision_tower ${VISION_MODEL_VERSION} \
     --mm_projector_type mlp2x_gelu \
     --mm_vision_select_layer -2 \
@@ -61,7 +61,7 @@ ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${NUM_GPUS}" --nnodes="${NN
     --save_strategy "steps" \
     --save_steps 250 \
     --save_total_limit 30 \
-    --learning_rate 1e-5 \
+    --learning_rate 1e-4 \
     --weight_decay 0. \
     --warmup_ratio 0.03 \
     --lr_scheduler_type "cosine" \
