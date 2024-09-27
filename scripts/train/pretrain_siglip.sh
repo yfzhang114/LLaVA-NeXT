@@ -21,8 +21,8 @@ ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${NUM_GPUS}" --nnodes="${NN
     --deepspeed scripts/zero3.json \
     --model_name_or_path ${LLM_VERSION} \
     --version ${PROMPT_VERSION} \
-    --data_path /blip_558k/blip_558k_plain.json \
-    --image_folder /blip_558k/images \
+    --data_path /data/LLaVA-Pretrain/blip_558k_plain.json \
+    --image_folder /data/LLaVA-Pretrain/images \
     --vision_tower ${VISION_MODEL_VERSION} \
     --mm_tunable_parts="mm_mlp_adapter" \
     --mm_vision_select_layer -2 \

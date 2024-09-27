@@ -51,3 +51,10 @@ do
 done
 
 wait  # 等待所有后台进程完成
+
+
+# accelerate launch --num_processes 8 --main_process_port 12380 -m lmms_eval \
+#     --model llava --model_args pretrained=/home/yueke/model/test,conv_template=v1,model_name=llava_openllm,conv_template=v1,model_name=llava_openllm \
+#     --tasks mme \
+#     --batch_size 1 \
+#     --output_path ./logs 
