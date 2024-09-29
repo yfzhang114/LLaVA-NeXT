@@ -41,7 +41,7 @@ do
     port=$((base_port + checkpoint_count))  # 为每个进程分配不同的端口
 
     # 启动评估
-    accelerate launch --num_processes 8 --main_process_port $port -m lmms_eval \
+    accelerate launch --num_processes 8 --main_process_port $port __main__.py \
         --model llava --model_args pretrained=$checkpoint,conv_template=qwen_1_5,model_name=llava_qwen \
         --tasks mme,mmerealworld,mmerealworld_cn,gqa_lite,vqav2_val_lite,realworldqa,ocrbench,textvqa_val_lite,websrc_val,chartqa_lite,ai2d_lite,docvqa_val_lite,pope_adv \
         --batch_size 1 \
