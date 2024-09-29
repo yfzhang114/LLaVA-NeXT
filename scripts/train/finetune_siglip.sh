@@ -10,7 +10,7 @@ VISION_MODEL_VERSION="google/siglip-so400m-patch14-384"
 VISION_MODEL_VERSION_CLEAN="${VISION_MODEL_VERSION//\//_}"
 
 ############### Pretrain ################
-# nohup bash scripts/train/finetune_siglip.sh >> finetune_siglip_qwen2_05b.log 2>&1 &
+# nohup bash scripts/train/finetune_siglip.sh >> finetune_siglip_qwen2_05b_again.log 2>&1 &
 
 # Set environment variables
 NUM_GPUS=8  # Set the number of GPUs based on your hardware configuration
@@ -37,8 +37,8 @@ ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${NUM_GPUS}" --nnodes="${NN
     --deepspeed scripts/zero3.json \
     --model_name_or_path ${LLM_VERSION} \
     --version ${PROMPT_VERSION} \
-    --data_path /home/yueke/data/llava_one_vision.json \
-    --image_folder /dev/shm/data/LLaVA-OneVision-Processed/images \
+    --data_path /dev/shm/llava_one_vision.json \
+    --image_folder /dev/shm/images \
     --pretrain_mm_mlp_adapter="/home/yueke/model/projectors/qwen_05_mm_projector.bin" \
     --mm_tunable_parts="mm_vision_tower,mm_mlp_adapter,mm_language_model" \
     --vision_tower ${VISION_MODEL_VERSION} \
@@ -52,7 +52,7 @@ ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${NUM_GPUS}" --nnodes="${NN
     --mm_patch_merge_type spatial_unpad \
     --bf16 True \
     --run_name $MID_RUN_NAME \
-    --output_dir "/home/yueke/model/${MID_RUN_NAME}" \
+    --output_dir "/dev/shm/model/${MID_RUN_NAME}" \
     --num_train_epochs 1 \
     --per_device_train_batch_size 2 \
     --per_device_eval_batch_size 4 \

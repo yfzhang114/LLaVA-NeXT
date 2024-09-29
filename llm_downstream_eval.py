@@ -64,22 +64,21 @@ class EvaluatorConfig:
 class TrainingArguments(transformers.TrainingArguments):
     # List of Downstream 
     evaluators: List[EvaluatorConfig] = field(default_factory=lambda: [
-        EvaluatorConfig(label="mmlu_cloze_stem", type="downstream"),
         EvaluatorConfig(label="mmlu_stem_test", type="downstream"),
-        # EvaluatorConfig(label="mmlu_cloze_humanities", type="downstream"),
-        # EvaluatorConfig(label="mmlu_cloze_social_sciences", type="downstream"),
-        # EvaluatorConfig(label="mmlu_cloze_other", type="downstream"),
-        # EvaluatorConfig(label="piqa", type="downstream"),
-        # EvaluatorConfig(label="hellaswag", type="downstream"),
-        # EvaluatorConfig(label="winogrande", type="downstream"),
-        # EvaluatorConfig(label="openbook_qa", type="downstream"),
-        # EvaluatorConfig(label="sciq", type="downstream"),
-        # EvaluatorConfig(label="arc_easy", type="downstream"),
-        # EvaluatorConfig(label="copa", type="downstream"),
-        # EvaluatorConfig(label="rte", type="downstream"),
-        # EvaluatorConfig(label="commitment_bank", type="downstream"),
-        # EvaluatorConfig(label="mrpc", type="downstream"),
-        # EvaluatorConfig(label="sst2", type="downstream")
+        EvaluatorConfig(label="mmlu_cloze_humanities", type="downstream"),
+        EvaluatorConfig(label="mmlu_cloze_social_sciences", type="downstream"),
+        EvaluatorConfig(label="mmlu_cloze_other", type="downstream"),
+        EvaluatorConfig(label="sciq", type="downstream"),
+        EvaluatorConfig(label="arc_easy", type="downstream"),
+        EvaluatorConfig(label="piqa", type="downstream"),
+        EvaluatorConfig(label="winogrande", type="downstream"),
+        EvaluatorConfig(label="openbook_qa", type="downstream"),
+        EvaluatorConfig(label="copa", type="downstream"),
+        EvaluatorConfig(label="rte", type="downstream"),
+        EvaluatorConfig(label="commitment_bank", type="downstream"),
+        EvaluatorConfig(label="mrpc", type="downstream"),
+        EvaluatorConfig(label="sst2", type="downstream"),
+        EvaluatorConfig(label="hellaswag", type="downstream"),
     ])
 
 
@@ -281,4 +280,8 @@ def main(attn_implementation='flash_attention_2') -> None:
 
 if __name__ == "__main__":
     # Initialize process group.
+    import random
+    seed = 3407
+    torch.manual_seed(seed)
+    random.seed(seed)
     main()

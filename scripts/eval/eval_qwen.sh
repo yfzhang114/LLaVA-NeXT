@@ -43,7 +43,7 @@ do
     # 启动评估
     accelerate launch --num_processes 8 --main_process_port $port -m lmms_eval \
         --model llava --model_args pretrained=$checkpoint,conv_template=qwen_1_5,model_name=llava_qwen \
-        --tasks gqa_lite,vqav2_val_lite,ocrbench,textvqa_val_lite,websrc_val,chartqa_lite,ai2d_lite,docvqa_val_lite,pope_adv,realworldqa \
+        --tasks mme,mmerealworld,mmerealworld_cn,gqa_lite,vqav2_val_lite,realworldqa,ocrbench,textvqa_val_lite,websrc_val,chartqa_lite,ai2d_lite,docvqa_val_lite,pope_adv \
         --batch_size 1 \
         --output_path ./logs &
 
@@ -58,3 +58,11 @@ wait  # 等待所有后台进程完成
 #     --tasks mme \
 #     --batch_size 1 \
 #     --output_path ./logs 
+
+# accelerate launch --num_processes=8 \
+# -m lmms_eval \
+# --model llava_onevision \
+# --model_args pretrained=lmms-lab/llava-onevision-qwen2-7b-ov,conv_template=qwen_1_5,model_name=llava_qwen \
+# --tasks mmerealworld \
+# --batch_size 1 \
+# --output_path ./logs/

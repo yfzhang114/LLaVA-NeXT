@@ -47,7 +47,7 @@ ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node=8 --nnodes=1 \
     --model_name_or_path ${CKPT_PATH} \
     --version ${PROMPT_VERSION} \
     --data_path /home/yueke/data/llava_one_vision.json \
-    --image_folder /dev/shm/data/LLaVA-OneVision-Processed/images \
+    --image_folder /data/LLaVA-OneVision-Processed/images \
     --mm_tunable_parts="mm_vision_tower,mm_mlp_adapter,mm_language_model" \
     --mm_vision_tower_lr=2e-6 \
     --vision_tower ${VISION_MODEL_VERSION} \
