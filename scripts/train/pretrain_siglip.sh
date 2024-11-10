@@ -1,15 +1,29 @@
 export OMP_NUM_THREADS=8
-export NCCL_IB_DISABLE=0
+export NCCL_IB_DISABLE=1
 export NCCL_IB_GID_INDEX=3
-export NCCL_SOCKET_IFNAME=eth0
+export NCCL_SOCKET_IFNAME=lo
 export NCCL_DEBUG=INFO
 
-LLM_VERSION="Qwen/Qwen2-7B-Instruct"
+LLM_VERSION="Qwen/Qwen2-0.5B-Instruct"
 LLM_VERSION_CLEAN="${LLM_VERSION//\//_}"
 VISION_MODEL_VERSION="google/siglip-so400m-patch14-384"
 VISION_MODEL_VERSION_CLEAN="${VISION_MODEL_VERSION//\//_}"
 
 ############### Pretrain ################
+# nohup bash scripts/train/pretrain_siglip.sh >> pretrain_siglip_qwen2_05b_again.log 2>&1 &
+
+NUM_GPUS=8  # Set the number of GPUs based on your hardware configuration
+NNODES=1    # Set the number of nodes (usually 1 for single-node training)
+RANK=0      # Set the rank of the current node (usually 0 for single node)
+ADDR="127.0.0.1"  # Set the address of the master node (use 127.0.0.1 for local training)
+PORT=12345   # Set the communication port (can be any unused port)
+
+# Print the values of the environment variables to confirm they are set correctly
+echo "NUM_GPUS: ${NUM_GPUS}"
+echo "NNODES: ${NNODES}"
+echo "RANK: ${RANK}"
+echo "ADDR: ${ADDR}"
+echo "PORT: ${PORT}"
 
 PROMPT_VERSION=plain
 
@@ -21,8 +35,8 @@ ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${NUM_GPUS}" --nnodes="${NN
     --deepspeed scripts/zero3.json \
     --model_name_or_path ${LLM_VERSION} \
     --version ${PROMPT_VERSION} \
-    --data_path /data/LLaVA-Pretrain/blip_558k_plain.json \
-    --image_folder /data/LLaVA-Pretrain/images \
+    --data_path /data/LLaVA-Pretrain/blip_laion_cc_sbu_558k.json \
+    --image_folder /data/LLaVA-Pretrain \
     --vision_tower ${VISION_MODEL_VERSION} \
     --mm_tunable_parts="mm_mlp_adapter" \
     --mm_vision_select_layer -2 \
@@ -30,7 +44,7 @@ ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${NUM_GPUS}" --nnodes="${NN
     --mm_use_im_start_end False \
     --mm_use_im_patch_token False \
     --bf16 True \
-    --output_dir /checkpoints/projectors/${BASE_RUN_NAME} \
+    --output_dir ./checkpoints/projectors/${BASE_RUN_NAME} \
     --num_train_epochs 1 \
     --per_device_train_batch_size 16 \
     --per_device_eval_batch_size 4 \

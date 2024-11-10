@@ -10,11 +10,7 @@ VISION_MODEL_VERSION="openai/clip-vit-large-patch14-336"
 VISION_MODEL_VERSION_CLEAN="${VISION_MODEL_VERSION//\//_}"
 
 ############### Pretrain ################
-
-PROMPT_VERSION=plain
-
-BASE_RUN_NAME="llavanext-${VISION_MODEL_VERSION_CLEAN}-${LLM_VERSION_CLEAN}-mlp2x_gelu-pretrain_blip558k_plain"
-echo "BASE_RUN_NAME: ${BASE_RUN_NAME}"
+# nohup bash scripts/train/finetune_clip.sh >> finetune_clip_qwen2_05b_clip_mlp2_bsz512_lr1e-3.log 2>&1 &
 
 # Set environment variables
 NUM_GPUS=8  # Set the number of GPUs based on your hardware configuration
@@ -30,29 +26,40 @@ echo "RANK: ${RANK}"
 echo "ADDR: ${ADDR}"
 echo "PORT: ${PORT}"
 
+PROMPT_VERSION="qwen_1_5"
+
+BASE_RUN_NAME="llavanext-${VISION_MODEL_VERSION_CLEAN}-${LLM_VERSION_CLEAN}-mlp2x_gelu-pretrain_blip558k_plain"
+
+MID_RUN_NAME="llavav15-${VISION_MODEL_VERSION_CLEAN}-${LLM_VERSION_CLEAN}"
+echo "MID_RUN_NAME: ${MID_RUN_NAME}"
 ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${NUM_GPUS}" --nnodes="${NNODES}" --node_rank="${RANK}" --master_addr="${ADDR}" --master_port="${PORT}" \
     llava/train/train_mem.py \
     --deepspeed scripts/zero3.json \
     --model_name_or_path ${LLM_VERSION} \
     --version ${PROMPT_VERSION} \
-    --data_path /dev/shm/data/LLaVA-Pretrain/blip_laion_cc_sbu_558k.json\
-    --image_folder /dev/shm/data/LLaVA-Pretrain \
+    --data_path /data/llava_sft/llava_v1_5_mix665k.json \
+    --image_folder /data/llava_sft/ \
+    --pretrain_mm_mlp_adapter="/home/yueke/model/projectors/qwen_7b_mm_projector.bin" \
+    --mm_tunable_parts="mm_mlp_adapter,mm_language_model" \
     --vision_tower ${VISION_MODEL_VERSION} \
-    --mm_tunable_parts="mm_mlp_adapter" \
-    --mm_vision_select_layer -2 \
     --mm_projector_type mlp2x_gelu \
+    --mm_vision_select_layer -2 \
     --mm_use_im_start_end False \
     --mm_use_im_patch_token False \
+    --group_by_modality_length True \
+    --image_aspect_ratio pad \
     --bf16 True \
-    --output_dir /home/yueke/model/projectors/${BASE_RUN_NAME} \
+    --run_name $MID_RUN_NAME \
+    --output_dir "/home/yueke/model/${MID_RUN_NAME}" \
     --num_train_epochs 1 \
-    --per_device_train_batch_size 16 \
+    --per_device_train_batch_size 4 \
     --per_device_eval_batch_size 4 \
-    --gradient_accumulation_steps 1 \
+    --gradient_accumulation_steps 16 \
     --evaluation_strategy "no" \
-    --save_strategy "no" \
-    --save_steps 50000 \
-    --learning_rate 1e-3 \
+    --save_strategy "steps" \
+    --save_steps 25000 \
+    --save_total_limit 1 \
+    --learning_rate 1e-4 \
     --weight_decay 0. \
     --warmup_ratio 0.03 \
     --lr_scheduler_type "cosine" \
@@ -63,7 +70,9 @@ ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${NUM_GPUS}" --nnodes="${NN
     --dataloader_num_workers 16 \
     --lazy_preprocess True \
     --report_to wandb \
-    --run_name $BASE_RUN_NAME \
+    --torch_compile True \
+    --torch_compile_backend "inductor" \
+    --dataloader_drop_last True \
     --attn_implementation sdpa
 
 # You can delete the sdpa attn_implementation if you want to use flash attn

@@ -1132,6 +1132,7 @@ class LazySupervisedDataset(Dataset):
             raise e
 
     def _get_item(self, i) -> Dict[str, torch.Tensor]:
+        # i = 0
         if 'image' in self.list_data_dict[i] and self.list_data_dict[i]['image'] is None:
             del self.list_data_dict[i]['image']
             sources = self.list_data_dict[i]
